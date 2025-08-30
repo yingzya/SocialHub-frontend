@@ -5,15 +5,20 @@
       <input v-model="newPost" placeholder="说点什么..." />
       <button @click="publish">发帖</button>
     </div>
-    <div v-for="post in posts" :key="post.id">
-      <p><strong>{{ post.userId }}:</strong> {{ post.content }}</p>
-    </div>
+
+    <PostItem
+      v-for="post in posts"
+      :key="post.id"
+      :post="post"
+      @refresh="loadPosts"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { api } from '../services/api.js';
+import PostItem from './PostItem.vue';
 
 const posts = ref([]);
 const newPost = ref('');
@@ -24,7 +29,6 @@ const loadPosts = async () => {
     posts.value = res.data;
   } catch (err) {
     console.error(err);
-    alert('加载帖子失败');
   }
 };
 
@@ -36,7 +40,6 @@ const publish = async () => {
     loadPosts();
   } catch (err) {
     console.error(err);
-    alert('发帖失败');
   }
 };
 

@@ -1,8 +1,8 @@
 <template>
   <div class="post">
-    <p>{{ post.content }}</p>
-    <p>点赞: {{ likeCount }}</p>
-    <button @click="like">点赞</button>
+    <p><strong>{{ post.userId }}:</strong> {{ post.content }}</p>
+    <p>点赞: {{ post.likeCount }}</p>
+    <button @click="toggleLike">{{ liked ? '取消点赞' : '点赞' }}</button>
 
     <div class="comments">
       <input v-model="newComment" placeholder="评论..." />
@@ -15,50 +15,51 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import api from '../services/api.js';
+import { ref, onMounted, watch } from 'vue';
+import { api }  from '../services/api.js';
+
 const props = defineProps({ post: Object });
 const emit = defineEmits(['refresh']);
 
-const likeCount = ref(0);
 const comments = ref([]);
 const newComment = ref('');
+const liked = ref(false);
+const likeCount = ref(props.post.likeCount || 0);
 
-const loadLikeCount = async () => {
-  try {
-    const res = await api.get(`/api/post/likeCount/${props.post.id}`);
-    likeCount.value = res.data;
-  } catch (err) {
-    console.error(err);
-  }
-};
-
+// 加载评论
 const loadComments = async () => {
   try {
-    const res = await api.get('/api/post/list'); // 后端没单独接口，可以用list代替
+    const res = await api.get('/api/post/list'); // 取整条帖子列表
     const p = res.data.find(p => p.id === props.post.id);
-    comments.value = p.comments || [];
+    comments.value = p?.comments || [];
+    likeCount.value = p?.likeCount || 0;
   } catch (err) {
     console.error(err);
   }
 };
 
-const like = async () => {
+// 切换点赞状态
+const toggleLike = async () => {
   try {
-    await api.post(`/api/post/like/${props.post.id}`);
-    loadLikeCount();
+    const res = await api.post(`/api/post/${props.post.id}/like`);
+    liked.value = !liked.value;
+    await loadComments(); // 重新获取最新点赞数
     emit('refresh');
   } catch (err) {
     console.error(err);
   }
 };
 
+// 添加评论
 const addComment = async () => {
   if (!newComment.value) return;
   try {
-    await api.post('/api/post/comment', { postId: props.post.id, content: newComment.value });
+    await api.post('/api/post/comment', {
+      postId: props.post.id,
+      content: newComment.value
+    });
     newComment.value = '';
-    loadComments();
+    await loadComments();
     emit('refresh');
   } catch (err) {
     console.error(err);
@@ -66,7 +67,6 @@ const addComment = async () => {
 };
 
 onMounted(() => {
-  loadLikeCount();
   loadComments();
 });
 </script>
