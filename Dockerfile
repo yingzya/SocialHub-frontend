@@ -1,5 +1,5 @@
-# 多阶段构建：第一阶段 - 构建Vue.js应用
-FROM node:18-alpine as build-stage
+# 多阶段构建：第一阶段 - 构建Vue.js应用（使用Node.js 20支持新版Vite）
+FROM node:20-alpine as build-stage
 
 # 设置工作目录
 WORKDIR /app
