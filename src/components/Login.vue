@@ -57,50 +57,56 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { auth } from '../services/api.js';
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { auth } from '../services/api.js'
+import { useUserStore } from '../stores/user.js'
 
-const router = useRouter();
-const username = ref('');
-const password = ref('');
-const message = ref('');
-const error = ref(false);
-const loading = ref(false);
+const router = useRouter()
+const userStore = useUserStore()
 
-const isSuccess = computed(() => message.value.includes('成功'));
+const username = ref('')
+const password = ref('')
+const message = ref('')
+const error = ref(false)
+const loading = ref(false)
+
+const isSuccess = computed(() => message.value.includes('成功'))
 
 const loginUser = async () => {
   if (!username.value || !password.value) {
-    message.value = '请输入用户名和密码';
-    error.value = true;
-    return;
+    message.value = '请输入用户名和密码'
+    error.value = true
+    return
   }
 
-  loading.value = true;
-  error.value = false;
-  message.value = '';
+  loading.value = true
+  error.value = false
+  message.value = ''
 
   try {
-    const res = await auth.login(username.value, password.value);
+    const res = await auth.login(username.value, password.value)
     if (res.data.success) {
-      localStorage.setItem('token', res.data.token);
-      message.value = '登录成功，正在跳转...';
-      setTimeout(() => {
-        router.push('/home');
-      }, 1000);
+      // 使用 Pinia 存 token 并设置用户信息
+      userStore.setUser({
+        token: res.data.token,
+        username: res.data.username,
+        avatar: res.data.avatar
+      })
+      message.value = '登录成功，正在跳转...'
+      setTimeout(() => router.push('/home'), 1000)
     } else {
-      message.value = res.data.message || '登录失败';
-      error.value = true;
+      message.value = res.data.message || '登录失败'
+      error.value = true
     }
   } catch (err) {
-    console.error('登录错误:', err);
-    message.value = err.response?.data?.message || '网络错误，请稍后重试';
-    error.value = true;
+    console.error('登录错误:', err)
+    message.value = err.response?.data?.message || '网络错误，请稍后重试'
+    error.value = true
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 </script>
 
 <style scoped>
@@ -271,39 +277,3 @@ const loginUser = async () => {
 
 
 
-<!--<template>-->
-<!--  <div>-->
-<!--    <h2>登录</h2>-->
-<!--    <input v-model="username" placeholder="用户名" />-->
-<!--    <input v-model="password" type="password" placeholder="密码" />-->
-<!--    <button @click="loginUser">登录</button>-->
-<!--    <p>{{ message }}</p>-->
-<!--  </div>-->
-<!--</template>-->
-
-<!--<script setup>-->
-<!--import { ref } from 'vue';-->
-<!--import { useRouter } from 'vue-router';-->
-<!--import { auth } from '../services/api.js';-->
-
-<!--const router = useRouter();-->
-<!--const username = ref('');-->
-<!--const password = ref('');-->
-<!--const message = ref('');-->
-
-<!--const loginUser = async () => {-->
-<!--  try {-->
-<!--    const res = await auth.login(username.value, password.value);-->
-<!--    if (res.data.success) {-->
-<!--      localStorage.setItem('token', res.data.token);-->
-<!--      message.value = '登录成功';-->
-<!--      router.push('/home');-->
-<!--    } else {-->
-<!--      message.value = res.data.message;-->
-<!--    }-->
-<!--  } catch (err) {-->
-<!--    console.error(err);-->
-<!--    message.value = '请求错误';-->
-<!--  }-->
-<!--};-->
-<!--</script>-->

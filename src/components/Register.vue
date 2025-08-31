@@ -1,12 +1,12 @@
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <div class="login-header">
-        <h2>欢迎注册</h2>
-        <p>请输入您的账号信息</p>
+  <div class="register-container">
+    <div class="register-card">
+      <div class="register-header">
+        <h2>注册账号</h2>
+        <p>加入我们的社交广场</p>
       </div>
 
-      <div class="login-form">
+      <div class="register-form">
         <div class="input-group">
           <label for="username">用户名</label>
           <input
@@ -15,9 +15,22 @@
             type="text"
             placeholder="请输入用户名"
             :class="{ 'input-error': error }"
-            @keyup.enter="loginUser"
+            @keyup.enter="registerUser"
           />
           <i class="icon-user">👤</i>
+        </div>
+
+        <div class="input-group">
+          <label for="email">邮箱</label>
+          <input
+            id="email"
+            v-model="email"
+            type="email"
+            placeholder="请输入邮箱地址"
+            :class="{ 'input-error': error }"
+            @keyup.enter="registerUser"
+          />
+          <i class="icon-email">📧</i>
         </div>
 
         <div class="input-group">
@@ -28,15 +41,28 @@
             type="password"
             placeholder="请输入密码"
             :class="{ 'input-error': error }"
-            @keyup.enter="loginUser"
+            @keyup.enter="registerUser"
+          />
+          <i class="icon-lock">🔒</i>
+        </div>
+
+        <div class="input-group">
+          <label for="confirmPassword">确认密码</label>
+          <input
+            id="confirmPassword"
+            v-model="confirmPassword"
+            type="password"
+            placeholder="请再次输入密码"
+            :class="{ 'input-error': error }"
+            @keyup.enter="registerUser"
           />
           <i class="icon-lock">🔒</i>
         </div>
 
         <button
-          class="login-btn"
+          class="register-btn"
           :disabled="loading"
-          @click="loginUser"
+          @click="registerUser"
         >
           <span v-if="!loading">注册</span>
           <span v-else class="loading">注册中...</span>
@@ -46,10 +72,9 @@
           {{ message }}
         </div>
 
-        <div class="login-links">
-          <a href="#" class="link">忘记密码?</a>
-          <span>|</span>
-          <router-link to="/login" class="link">返回登录</router-link>
+        <div class="register-links">
+          <span>已有账号？</span>
+          <router-link to="/login" class="link">立即登录</router-link>
         </div>
       </div>
     </div>
@@ -57,56 +82,91 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { auth } from '../services/api.js';
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { auth } from '../services/api.js'
+import { useUserStore } from '../stores/user.js'
 
-const router = useRouter();
-const username = ref('');
-const password = ref('');
-const message = ref('');
-const error = ref(false);
-const loading = ref(false);
+const router = useRouter()
+const userStore = useUserStore()
 
-const isSuccess = computed(() => message.value.includes('成功'));
+const username = ref('')
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const message = ref('')
+const error = ref(false)
+const loading = ref(false)
 
-const loginUser = async () => {
-  if (!username.value || !password.value) {
-    message.value = '请输入用户名和密码';
-    error.value = true;
-    return;
+const isSuccess = computed(() => message.value.includes('成功'))
+
+const validateForm = () => {
+  if (!username.value || !email.value || !password.value || !confirmPassword.value) {
+    message.value = '请填写所有字段'
+    return false
+  }
+  
+  if (username.value.length < 3) {
+    message.value = '用户名至少3个字符'
+    return false
+  }
+  
+  if (password.value.length < 6) {
+    message.value = '密码至少6个字符'
+    return false
+  }
+  
+  if (password.value !== confirmPassword.value) {
+    message.value = '两次输入的密码不一致'
+    return false
+  }
+  
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email.value)) {
+    message.value = '请输入有效的邮箱地址'
+    return false
+  }
+  
+  return true
+}
+
+const registerUser = async () => {
+  error.value = false
+  message.value = ''
+  
+  if (!validateForm()) {
+    error.value = true
+    return
   }
 
-  loading.value = true;
-  error.value = false;
-  message.value = '';
+  loading.value = true
 
   try {
-    const res = await auth.register(username.value, password.value);
+    const res = await auth.register(username.value, password.value, email.value)
     if (res.data.success) {
-      localStorage.setItem('token', res.data.token);
-      message.value = '注册成功，正在跳转登录';
-      setTimeout(() => {
-        router.push('/home');
-      }, 1000);
+      userStore.setUser({
+        token: res.data.token,
+        username: res.data.username,
+        avatar: res.data.avatar
+      })
+      message.value = '注册成功，正在跳转...'
+      setTimeout(() => router.push('/home'), 1000)
     } else {
-      message.value = res.data.message || '注册失败';
-      error.value = true;
+      message.value = res.data.message || '注册失败'
+      error.value = true
     }
   } catch (err) {
-    console.error('注册失败:', err);
-    message.value = err.response?.data?.message || '网络错误，请稍后重试';
-    error.value = true;
+    console.error('注册错误:', err)
+    message.value = err.response?.data?.message || '网络错误，请稍后重试'
+    error.value = true
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 </script>
 
-
-
 <style scoped>
-.login-container {
+.register-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -115,7 +175,7 @@ const loginUser = async () => {
   padding: 20px;
 }
 
-.login-card {
+.register-card {
   background: white;
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
@@ -125,19 +185,19 @@ const loginUser = async () => {
   backdrop-filter: blur(10px);
 }
 
-.login-header {
+.register-header {
   text-align: center;
   margin-bottom: 30px;
 }
 
-.login-header h2 {
+.register-header h2 {
   color: #333;
   font-size: 28px;
   font-weight: 600;
   margin-bottom: 8px;
 }
 
-.login-header p {
+.register-header p {
   color: #666;
   font-size: 14px;
 }
@@ -176,6 +236,7 @@ const loginUser = async () => {
 }
 
 .input-group .icon-user,
+.input-group .icon-email,
 .input-group .icon-lock {
   position: absolute;
   left: 12px;
@@ -183,7 +244,7 @@ const loginUser = async () => {
   font-size: 18px;
 }
 
-.login-btn {
+.register-btn {
   width: 100%;
   padding: 14px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -197,12 +258,12 @@ const loginUser = async () => {
   margin-top: 10px;
 }
 
-.login-btn:hover:not(:disabled) {
+.register-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
 }
 
-.login-btn:disabled {
+.register-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
@@ -239,74 +300,34 @@ const loginUser = async () => {
   border: 1px solid #f5c6cb;
 }
 
-.login-links {
+.register-links {
   text-align: center;
   margin-top: 20px;
   color: #666;
 }
 
-.login-links .link {
+.register-links .link {
   color: #667eea;
   text-decoration: none;
   font-size: 14px;
-  margin: 0 8px;
+  margin-left: 8px;
   transition: color 0.3s ease;
 }
 
-.login-links .link:hover {
+.register-links .link:hover {
   color: #764ba2;
   text-decoration: underline;
 }
 
 /* 响应式设计 */
 @media (max-width: 480px) {
-  .login-card {
+  .register-card {
     padding: 30px 20px;
     margin: 0 10px;
   }
 
-  .login-header h2 {
+  .register-header h2 {
     font-size: 24px;
   }
 }
 </style>
-
-
-
-
-<!--<template>-->
-<!--  <div>-->
-<!--    <h2>注册</h2>-->
-<!--    <input v-model="username" placeholder="用户名" />-->
-<!--    <input v-model="password" type="password" placeholder="密码" />-->
-<!--    <button @click="registerUser">注册</button>-->
-<!--    <p>{{ message }}</p>-->
-<!--  </div>-->
-<!--</template>-->
-
-<!--<script setup>-->
-<!--import { ref } from 'vue';-->
-<!--import { useRouter } from 'vue-router';-->
-<!--import { auth } from '../services/api.js';-->
-
-<!--const router = useRouter();-->
-<!--const username = ref('');-->
-<!--const password = ref('');-->
-<!--const message = ref('');-->
-
-<!--const registerUser = async () => {-->
-<!--  try {-->
-<!--    const res = await auth.register(username.value, password.value);-->
-<!--    if (res.data.success) {-->
-<!--      localStorage.setItem('token', res.data.token);-->
-<!--      message.value = '注册成功';-->
-<!--      router.push('/home');-->
-<!--    } else {-->
-<!--      message.value = res.data.message;-->
-<!--    }-->
-<!--  } catch (err) {-->
-<!--    console.error(err);-->
-<!--    message.value = '请求错误';-->
-<!--  }-->
-<!--};-->
-<!--</script>-->
