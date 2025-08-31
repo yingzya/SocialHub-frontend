@@ -1,8 +1,19 @@
 import axios from 'axios';
 
+// 根据环境确定API基础URL
+const getBaseURL = () => {
+  if (import.meta.env.PROD) {
+    // 生产环境：使用域名
+    return 'https://schub.yingzya.top';
+  } else {
+    // 开发环境：使用localhost
+    return 'http://localhost:8080';
+  }
+};
+
 // 创建 axios 实例
 const api = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: getBaseURL(),
   timeout: 10000,
   withCredentials: false,
   headers: {
