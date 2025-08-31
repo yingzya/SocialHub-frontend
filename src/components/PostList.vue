@@ -284,6 +284,9 @@ onMounted(() => {
   margin-bottom: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
 }
 
 .user-info {
@@ -291,6 +294,7 @@ onMounted(() => {
   align-items: center;
   gap: 12px;
   margin-bottom: 15px;
+  width: 100%;
 }
 
 .username {
@@ -300,6 +304,7 @@ onMounted(() => {
 
 .post-input {
   width: 100%;
+  box-sizing: border-box;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   padding: 12px;
@@ -309,6 +314,7 @@ onMounted(() => {
   min-height: 60px;
   font-family: inherit;
   transition: border-color 0.2s;
+  margin: 0;
 }
 
 .post-input:focus {
