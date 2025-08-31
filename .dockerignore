@@ -1,0 +1,35 @@
+# 忽略node_modules，避免COPY冲突
+node_modules
+
+# 忽略本地构建结果
+dist
+.vite
+
+# 忽略开发文件
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 忽略IDE文件
+.vscode
+.idea
+*.swp
+*.swo
+
+# 忽略系统文件
+.DS_Store
+Thumbs.db
+
+# 忽略Git文件
+.git
+.gitignore
+
+# 忽略日志文件
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 忽略测试覆盖率
+coverage 
