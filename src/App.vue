@@ -1,13 +1,5 @@
 <template>
-  <div>
-    <nav>
-      <router-link to="/home" v-if="isLogin">首页</router-link>
-      <router-link to="/login" v-if="!isLogin">登录</router-link>
-      <router-link to="/register" v-if="!isLogin">注册</router-link>
-      <button v-if="isLogin" @click="logout">退出</button>
-    </nav>
     <router-view />
-  </div>
 </template>
 
 <script setup>
