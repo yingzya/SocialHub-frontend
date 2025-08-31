@@ -9,8 +9,8 @@
       <!-- 发帖表单 -->
       <div class="post-form">
         <div class="user-info">
-          <UserAvatar :src="userStore.user?.avatar" :size="40" />
-          <span class="username">{{ userStore.user?.username || '未登录' }}</span>
+          <UserAvatar :src="userStore.avatar" :size="40" />
+          <span class="username">{{ userStore.username || '未登录' }}</span>
         </div>
         
         <textarea 
@@ -22,14 +22,17 @@
           class="post-input"
         ></textarea>
         
-        <!-- 图片上传组件 -->
-        <ImageUpload 
-          v-model="postImageUrl" 
-          placeholder="添加图片（可选）"
-          class="post-image-upload"
-        />
-        
         <div class="post-actions">
+          <!-- 工具栏按钮 -->
+          <div class="post-tools">
+            <ImageUpload 
+              v-model="postImageUrl" 
+              class="tool-btn-upload"
+            />
+            <button type="button" class="tool-btn" title="表情">😊</button>
+            <button type="button" class="tool-btn" title="位置">📍</button>
+          </div>
+          
           <button 
             @click="publishPost" 
             :disabled="!newPost.trim() || publishing"
@@ -51,14 +54,14 @@
           <div class="empty-icon">📝</div>
           <h3>还没有帖子</h3>
           <p>成为第一个分享动态的人吧！</p>
-        </div>
-        
+    </div>
+
         <div v-else class="posts-grid">
-          <PostItem
-            v-for="post in posts"
-            :key="post.id"
-            :post="post"
-          />
+    <PostItem
+      v-for="post in posts"
+      :key="post.id"
+      :post="post"
+    />
         </div>
       </div>
     </div>
@@ -67,7 +70,7 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue';
-import api from '../services/api.js';
+import { api } from '../services/api.js';
 import { useUserStore } from '../stores/user.js';
 import PostItem from './PostItem.vue';
 import UserAvatar from './UserAvatar.vue';
@@ -112,7 +115,7 @@ const publishPost = async () => {
       console.log('帖子发布成功:', response.data);
       
       // 清空表单
-      newPost.value = '';
+    newPost.value = '';
       postImageUrl.value = '';
       textareaHeight.value = 'auto';
       
@@ -318,15 +321,41 @@ onMounted(() => {
   color: #9ca3af;
 }
 
-.post-image-upload {
-  margin: 15px 0;
-}
-
 .post-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 15px;
+}
+
+.post-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tool-btn-upload {
+  /* ImageUpload组件自身样式 */
+}
+
+.tool-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  color: #64748b;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tool-btn:hover {
+  background-color: #e2e8f0;
+  transform: scale(1.05);
 }
 
 .publish-btn {

@@ -12,15 +12,15 @@
       </div>
       
       <nav class="nav">
-        <router-link v-if="userStore.loggedIn" to="/home" class="nav-link">首页</router-link>
+        <router-link v-if="userStore.loggedIn" to="/" class="nav-link">首页</router-link>
       </nav>
       
       <div class="user-section">
         <div v-if="userStore.loggedIn" class="user-info">
-          <img :src="userStore.avatar" :alt="userStore.username" class="avatar" />
+          <img :src="userStore.user?.avatar || userStore.avatar" :alt="userStore.user?.username || userStore.username" class="avatar" />
           <div class="user-dropdown">
             <button class="user-button" @click="toggleDropdown">
-              <span class="username">{{ userStore.username }}</span>
+              <span class="username">{{ userStore.user?.username || userStore.username }}</span>
               <span class="dropdown-arrow" :class="{ 'rotated': dropdownOpen }">▼</span>
             </button>
             <div v-if="dropdownOpen" class="dropdown-menu" @click="closeDropdown">
@@ -39,7 +39,7 @@
           <router-link to="/register" class="auth-link register-btn">注册</router-link>
         </div>
       </div>
-    </div>
+  </div>
   </header>
 </template>
 

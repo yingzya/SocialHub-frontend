@@ -74,7 +74,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user.js'
 import UserAvatar from './UserAvatar.vue'
 import ImageUpload from './ImageUpload.vue'
-import api from '../services/api.js'
+import { api } from '../services/api.js'
 
 const router = useRouter()
 const userStore = useUserStore()

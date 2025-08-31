@@ -149,8 +149,8 @@ const registerUser = async () => {
         username: res.data.username,
         avatar: res.data.avatar
       })
-      message.value = '注册成功，正在跳转...'
-      setTimeout(() => router.push('/home'), 1000)
+              message.value = '注册成功，正在跳转...'
+        setTimeout(() => router.push('/'), 1000)
     } else {
       message.value = res.data.message || '注册失败'
       error.value = true

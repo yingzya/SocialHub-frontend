@@ -94,7 +94,7 @@ const loginUser = async () => {
         avatar: res.data.avatar
       })
       message.value = '登录成功，正在跳转...'
-      setTimeout(() => router.push('/home'), 1000)
+      setTimeout(() => router.push('/'), 1000)
     } else {
       message.value = res.data.message || '登录失败'
       error.value = true

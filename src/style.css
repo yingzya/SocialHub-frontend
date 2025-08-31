@@ -197,7 +197,7 @@ input, textarea {
 /* 悬停效果 */
 .hover-lift:hover {
   transform: translateY(-2px);
-}
+  }
 
 .hover-shadow:hover {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -210,7 +210,7 @@ input, textarea {
 
 .gradient-light {
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-}
+  }
 
 /* 玻璃效果 */
 .glass {
@@ -226,7 +226,7 @@ input, textarea {
   border: 1px solid #f5c6cb;
   padding: 8px 12px;
   border-radius: 6px;
-}
+  }
 
 .success {
   color: #155724;

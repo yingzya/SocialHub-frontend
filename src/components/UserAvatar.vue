@@ -1,21 +1,34 @@
 <template>
-  <div class="user-avatar" v-if="userStore.loggedIn">
-    <img :src="userStore.avatar" alt="avatar" class="avatar" />
-    <span>{{ userStore.username }}</span>
-    <button @click="logout">退出</button>
-  </div>
-  <div v-else>
-    <router-link to="/login">登录</router-link>
+  <div class="user-avatar" :style="{ width: size + 'px', height: size + 'px' }">
+    <img 
+      :src="src || userStore.user?.avatar || userStore.avatar || defaultAvatar" 
+      :alt="userStore.user?.username || userStore.username || '用户头像'" 
+      class="avatar" 
+      :style="{ width: size + 'px', height: size + 'px' }"
+      @error="handleImageError"
+    />
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useUserStore } from '../stores/user.js'
 
-const userStore = useUserStore()
-userStore.fetchUser() // 页面加载时获取用户信息
+const props = defineProps({
+  src: String,
+  size: {
+    type: Number,
+    default: 32
+  }
+})
 
-const logout = () => userStore.logout()
+const userStore = useUserStore()
+const defaultAvatar = 'https://7.isyangs.cn/20250831/a906f449ce2047eca7ae8a39f97d6219.jpg'
+const imageError = ref(false)
+
+const handleImageError = () => {
+  imageError.value = true
+}
 </script>
 
 <style scoped>
